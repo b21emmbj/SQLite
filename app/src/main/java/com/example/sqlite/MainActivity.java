@@ -3,8 +3,10 @@ package com.example.sqlite;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,8 +21,13 @@ public class MainActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
         database = databaseHelper.getWritableDatabase();
 
-        addMountains("Kinnekulle", 306);
-
+        deleteAllMountains();
+        //addMountains("Kinnekulle", 306);
+        printMountains();
+        Log.d("MainA", "inga berg");
+    }
+    private void deleteAllMountains() {
+        database.delete(DatabaseTables.Mountain.TABLE_NAME, null, null);
     }
 
     private void addMountains(String name, int height) {
@@ -29,4 +36,17 @@ public class MainActivity extends AppCompatActivity {
         values.put(DatabaseTables.Mountain.COLUMN_NAME_HEIGHT, height);
         database.insert(DatabaseTables.Mountain.TABLE_NAME, null, values);
     }
+    private void printMountains() {
+        Cursor cursor = database.query(DatabaseTables.Mountain.TABLE_NAME, null, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            Mountain mountain = new Mountain(
+                    cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseTables.Mountain.COLUMN_NAME_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseTables.Mountain.COLUMN_NAME_NAME)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseTables.Mountain.COLUMN_NAME_HEIGHT))
+            );
+            Log.d("MainA", mountain.getName());
+        }
+        cursor.close();
+    }
+
 }
